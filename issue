@@ -1,0 +1,20 @@
+#!/bin/bash
+
+filename="./issue.its"
+
+function usage() {
+  echo "Usage: $0 <command>"
+  echo "Commands:"
+  echo "  help - show this help"
+}
+
+case $1 in
+  "help")
+    usage
+    ;;
+  *)
+    echo "Unknown command: $1"
+    usage
+    exit 1
+    ;;
+esac
