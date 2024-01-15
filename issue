@@ -6,6 +6,7 @@ function usage() {
   echo "Usage: $0 <command>"
   echo "Commands:"
   echo "  add - add a new issue"
+  echo "  graph - use graphviz to show the issues"
   echo "  help - show this help"
 }
 
@@ -54,6 +55,31 @@ function add_issue() {
 }
 
 case $1 in
+  "graph")
+    (
+    echo "digraph {"
+    echo "  rankdir=LR"
+    echo "  node [shape=box]"
+    awk -F'\t' '
+    // {
+      node_color=""
+      if ($2 == "done") {
+        node_color="green"
+      } else if ($2 == "todo") {
+        node_color="red"
+      } else if ($2 == "doing") {
+        node_color="yellow"
+      }
+      if ($4 == 0) {
+        print "  \"" $1 "\" [label=\"" $5 "\", color=\"" node_color "\"]"
+      } else {
+        print "  \"" $1 "\" [label=\"" $5 "\", color=\"" node_color "\"]"
+        print "  \"" $4 "\" -> \"" $1 "\""
+      }
+    }' "$filename"
+    echo "}"
+    ) | dot -Tpng | feh -
+    ;;
   "help")
     usage
     ;;
