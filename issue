@@ -6,6 +6,7 @@ function usage() {
   echo "Usage: $0 <command>"
   echo "Commands:"
   echo "  add - add a new issue"
+  echo "  update - update the status of an issue"
   echo "  graph - use graphviz to show the issues"
   echo "  help - show this help"
 }
@@ -55,6 +56,43 @@ function add_issue() {
 }
 
 case $1 in
+  "add")
+    add_issue
+    ;;
+  "update")
+    ID=$(
+      fzf --prompt="ID: " < "$filename" | \
+        awk -F'\t' '{print $1}'
+    )
+
+    if [ -z "$ID" ]; then
+      echo "No ID selected"
+      exit 1
+    fi
+
+    STATUS=$(
+    echo -e "todo\ndoing\ndone" | \
+      fzf --prompt="Status: "
+    )
+
+    if [ -z "$STATUS" ]; then
+      echo "No status selected"
+      exit 1
+    fi
+
+    awk -F'\t' -v id="$ID" -v status="$STATUS" '
+    BEGIN {
+      OFS = "\t"
+    }
+    // {
+      if ($1 == id) {
+        $2 = status
+      }
+      print $0
+    }' "$filename" > /tmp/issue.txt
+
+    mv /tmp/issue.txt "$filename"
+    ;;
   "graph")
     (
     echo "digraph {"
