@@ -5,7 +5,52 @@ filename="./issue.its"
 function usage() {
   echo "Usage: $0 <command>"
   echo "Commands:"
+  echo "  add - add a new issue"
   echo "  help - show this help"
+}
+
+function add_issue() {
+  DATE=$(date +%Y-%m-%d)
+  ID=$(awk -F'\t' '
+  BEGIN {
+    max = 0
+  }
+  // {
+    if ($1 > max) {
+      max = $1
+    }
+  }
+  END {
+    print max + 1
+  }' "$filename")
+
+  PARENT=$(
+    fzf --prompt="Parent: " < "$filename" | \
+      awk -F'\t' '{print $1}'
+  )
+
+  if [ -z "$PARENT" ]; then
+    PARENT="0"
+  fi
+
+  (
+  echo "ID: $ID"
+  echo "Status: todo"
+  echo "Created: $DATE"
+  echo "Parent: $PARENT"
+  echo "Name: "
+  ) > /tmp/issue.txt
+
+  $EDITOR /tmp/issue.txt
+
+  if [ -s /tmp/issue.txt ]; then
+    sed 's/.\+: //g' < /tmp/issue.txt | \
+      tr '\n' '\t' | \
+      sed 's/\t$/\n/g' >> "$filename"
+          echo "Added to $filename"
+        else
+          echo "No changes made"
+  fi
 }
 
 case $1 in
