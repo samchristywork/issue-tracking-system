@@ -6,6 +6,8 @@ function usage() {
   echo "Usage: $0 <command>"
   echo "Commands:"
   echo "  add - add a new issue"
+  echo "  show - show all issues"
+  echo "  edit - edit the issue file"
   echo "  update - update the status of an issue"
   echo "  graph - use graphviz to show the issues"
   echo "  help - show this help"
@@ -58,6 +60,15 @@ function add_issue() {
 case $1 in
   "add")
     add_issue
+    ;;
+  "show")
+    (
+    printf "ID\tStatus\tCreated\tParent\tName\n"
+    cat "$filename"
+    ) | column -t -s $'\t'
+    ;;
+  "edit")
+    "$EDITOR" "$filename"
     ;;
   "update")
     ID=$(
