@@ -15,6 +15,42 @@ function usage() {
 }
 
 function add_issue() {
+  if [ ! -f "$filename" ]; then
+    echo "This is a new issue file, would you like to apply a template?"
+    select yn in "Yes" "No"; do
+      case $yn in
+        Yes)
+          echo "Which template would you like to use?"
+          select template in "default" "empty"; do
+            case $template in
+              default)
+                cp "$HOME/.config/issue/issue.its" "$filename"
+                break
+                ;;
+              empty)
+                touch "$filename"
+                break
+                ;;
+              *)
+                echo "Unknown template: $template"
+                exit 1
+                ;;
+            esac
+          done
+          break
+          ;;
+        No)
+          touch "$filename"
+          break
+          ;;
+        *)
+          echo "Unknown option: $yn"
+          exit 1
+          ;;
+      esac
+    done
+  fi
+
   DATE=$(date +%Y-%m-%d)
   ID=$(awk -F'\t' '
   BEGIN {
