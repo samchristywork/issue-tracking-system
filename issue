@@ -191,6 +191,9 @@ case $1 in
   "help")
     usage
     ;;
+  "" )
+    "$0" add
+    ;;
   *)
     echo "Unknown command: $1"
     usage
